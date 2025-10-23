@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Video - CampusTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <h2>CampusTrack</h2>
+            </div>
+            <div class="nav-user">
+                <span>Welcome, {{ role|title }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+            <h1>Upload Video Footage</h1>
+            
+            <div class="upload-section">
+                <div class="upload-box">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Select Video File</h3>
+                    <p>Supports: MP4, AVI, MOV, MKV</p>
+                    
+                    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="videoFile" name="video" accept="video/*" required>
+                            <label for="videoFile" class="file-label">
+                                <i class="fas fa-folder-open"></i>
+                                Choose Video File
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="upload-btn">
+                            <i class="fas fa-upload"></i>
+                            Upload & Process
+                        </button>
+                    </form>
+                    
+                    <div id="uploadStatus" class="upload-status" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Processing video... This may take a few minutes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            document.getElementById('uploadStatus').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
