@@ -37,12 +37,18 @@
         </nav>
 
         <div class="dashboard-content">
-            <h1>Advanced Search System</h1>
+            <h1><i class="fas fa-search"></i> Advanced Search System</h1>
             
             <div class="search-tabs">
-                <button class="tab-btn active" onclick="showTab('face-search')">Face Search</button>
-                <button class="tab-btn" onclick="showTab('id-search')">ID Search</button>
-                <button class="tab-btn" onclick="showTab('time-search')">Time Search</button>
+                <button class="tab-btn active" data-tab="face-search" onclick="showTab('face-search')">
+                    <i class="fas fa-user"></i> Face Search
+                </button>
+                <button class="tab-btn" data-tab="id-search" onclick="showTab('id-search')">
+                    <i class="fas fa-id-card"></i> ID Search
+                </button>
+                <button class="tab-btn" data-tab="time-search" onclick="showTab('time-search')">
+                    <i class="fas fa-clock"></i> Time Search
+                </button>
             </div>
 
             <div id="face-search" class="search-tab-content active">
@@ -64,7 +70,7 @@
                         </button>
                     </div>
                     
-                    <button class="search-btn" onclick="searchByFace()">
+                    <button class="login-btn" onclick="searchByFace()">
                         <i class="fas fa-search"></i> Search Matches
                     </button>
                 </div>
@@ -75,7 +81,7 @@
                     <h3>Search by Person ID</h3>
                     <div class="input-group">
                         <input type="text" id="personIdInput" placeholder="Enter Person ID (e.g., PERSON_001)">
-                        <button class="search-btn" onclick="searchById()">
+                        <button class="login-btn" onclick="searchById()">
                             <i class="fas fa-search"></i> Search
                         </button>
                     </div>
@@ -105,14 +111,14 @@
                             </select>
                         </div>
                     </div>
-                    <button class="search-btn" onclick="searchByTime()">
+                    <button class="login-btn" onclick="searchByTime()">
                         <i class="fas fa-search"></i> Search
                     </button>
                 </div>
             </div>
 
             <div class="search-results" id="searchResults">
-                <h3>Search Results</h3>
+                <h2><i class="fas fa-list"></i> Search Results</h2>
                 <div class="results-grid" id="resultsGrid">
                     <!-- Results will appear here -->
                 </div>
@@ -120,6 +126,7 @@
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         // Tab switching
         function showTab(tabId) {
@@ -164,7 +171,7 @@
             
             // Show loading
             const resultsGrid = document.getElementById('resultsGrid');
-            resultsGrid.innerHTML = '<div class="loading">Searching for matches...</div>';
+            resultsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching for matches...</div>';
             
             // Simulate search (in real app, this would call backend)
             setTimeout(() => {
@@ -180,7 +187,7 @@
             }
             
             const resultsGrid = document.getElementById('resultsGrid');
-            resultsGrid.innerHTML = '<div class="loading">Searching for ID...</div>';
+            resultsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching for ID...</div>';
             
             setTimeout(() => {
                 loadMockResults('id');
@@ -197,7 +204,7 @@
             }
             
             const resultsGrid = document.getElementById('resultsGrid');
-            resultsGrid.innerHTML = '<div class="loading">Searching by time...</div>';
+            resultsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching by time...</div>';
             
             setTimeout(() => {
                 loadMockResults('time');
@@ -264,8 +271,5 @@
             loadMockResults('initial');
         });
     </script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
-
 </body>
 </html>

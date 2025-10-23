@@ -8,6 +8,7 @@ class AppManager {
         this.setupGlobalEvents();
         this.setupRippleEffects();
         this.setupResponsive();
+        this.setupPasswordToggle();
     }
 
     setupGlobalEvents() {
@@ -78,14 +79,35 @@ class AppManager {
         document.head.appendChild(style);
     }
 
+    setupPasswordToggle() {
+        // Add password visibility toggle to login page
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(input => {
+            const toggleBtn = document.createElement('span');
+            toggleBtn.className = 'password-toggle';
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            toggleBtn.onclick = () => this.togglePassword(input, toggleBtn);
+            
+            // Insert toggle button after input
+            const container = input.parentElement;
+            container.appendChild(toggleBtn);
+        });
+    }
+
+    togglePassword(input, toggleBtn) {
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        // Change icon
+        if (type === 'text') {
+            toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    }
+
     setupResponsive() {
         // Handle responsive navigation
-        const menuToggle = document.createElement('button');
-        menuToggle.innerHTML = '☰';
-        menuToggle.className = 'mobile-menu-toggle';
-        menuToggle.style.display = 'none';
-        
-        // Add media query for mobile
         const mediaQuery = window.matchMedia('(max-width: 768px)');
         mediaQuery.addListener(this.handleMobileNav.bind(this));
         this.handleMobileNav(mediaQuery);
@@ -97,7 +119,6 @@ class AppManager {
 
         if (mediaQuery.matches) {
             navLinks.style.display = 'none';
-            // Add mobile menu toggle
         } else {
             navLinks.style.display = 'flex';
         }

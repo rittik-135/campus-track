@@ -14,6 +14,20 @@
                 <i class="fas fa-shield-alt"></i>
                 <h2>CampusTrack</h2>
             </div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('search') }}" class="nav-link">
+                    <i class="fas fa-search"></i> Search
+                </a>
+                <a href="{{ url_for('upload') }}" class="nav-link">
+                    <i class="fas fa-upload"></i> Upload
+                </a>
+                <a href="{{ url_for('demo_cam') }}" class="nav-link active">
+                    <i class="fas fa-video"></i> Live CAM
+                </a>
+            </div>
             <div class="nav-user">
                 <span>Welcome, {{ role|title }}</span>
                 <a href="{{ url_for('auth.logout') }}" class="logout-btn">
@@ -23,18 +37,24 @@
         </nav>
 
         <div class="dashboard-content">
-            <h1>Live Camera Feed (DEMO_CAM)</h1>
+            <h1><i class="fas fa-video"></i> Live Camera Feed (DEMO_CAM)</h1>
             
             <div class="camera-section">
-                <div class="camera-feed">
-                    <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Live Camera Feed">
-                </div>
-                
                 <div class="camera-controls">
-                    <button class="control-btn" onclick="refreshCamera()">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh Feed
+                    <button id="startCameraBtn" class="control-btn" onclick="startCamera()">
+                        <i class="fas fa-play"></i>
+                        Start Camera
                     </button>
+                    
+                    <button id="stopCameraBtn" class="control-btn" onclick="stopCamera()" disabled>
+                        <i class="fas fa-stop"></i>
+                        Stop Camera
+                    </button>
+                    
+                    <div class="camera-status" id="cameraStatus">
+                        <i class="fas fa-circle text-danger"></i>
+                        Camera Stopped
+                    </div>
                     
                     <div class="camera-stats">
                         <div class="stat-item">
@@ -47,23 +67,90 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="camera-feed" id="cameraFeed">
+                    <img id="videoFeed" src="" alt="Live Camera Feed" style="display: none;">
+                    <div class="camera-placeholder">
+                        <i class="fas fa-video"></i>
+                        <p>Click "Start Camera" to begin</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
-        function refreshCamera() {
-            document.getElementById('videoFeed').src = "{{ url_for('video_feed') }}?" + new Date().getTime();
+        // Camera control functions
+        let cameraActive = false;
+        
+        function startCamera() {
+            if (cameraActive) return;
+            
+            // Show loading state
+            document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle text-success"></i> Camera Starting...';
+            document.getElementById('startCameraBtn').disabled = true;
+            
+            // Simulate camera startup delay
+            setTimeout(() => {
+                // Start camera feed
+                document.getElementById('videoFeed').src = "{{ url_for('video_feed') }}";
+                document.getElementById('videoFeed').style.display = 'block';
+                document.querySelector('.camera-placeholder').style.display = 'none';
+                
+                // Update status
+                document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle text-success"></i> Camera Active';
+                document.getElementById('startCameraBtn').disabled = true;
+                document.getElementById('stopCameraBtn').disabled = false;
+                
+                // Reset person count
+                document.getElementById('personCount').textContent = '0';
+                
+                cameraActive = true;
+                
+                // Start updating time
+                updateTime();
+            }, 1000);
+        }
+        
+        function stopCamera() {
+            if (!cameraActive) return;
+            
+            // Stop camera feed
+            document.getElementById('videoFeed').src = '';
+            document.getElementById('videoFeed').style.display = 'none';
+            document.querySelector('.camera-placeholder').style.display = 'flex';
+            
+            // Update status
+            document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle text-danger"></i> Camera Stopped';
+            document.getElementById('startCameraBtn').disabled = false;
+            document.getElementById('stopCameraBtn').disabled = true;
+            
+            cameraActive = false;
         }
         
         // Update current time
         function updateTime() {
             const now = new Date();
             document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+            
+            if (cameraActive) {
+                setTimeout(updateTime, 1000);
+            }
         }
         
-        setInterval(updateTime, 1000);
-        updateTime();
+        // Initialize camera on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('videoFeed').addEventListener('error', function() {
+                if (cameraActive) {
+                    document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle text-warning"></i> Camera Error';
+                    document.getElementById('startCameraBtn').disabled = false;
+                    document.getElementById('stopCameraBtn').disabled = true;
+                    cameraActive = false;
+                }
+            });
+        });
     </script>
 </body>
 </html>

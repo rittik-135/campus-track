@@ -105,7 +105,9 @@
             <div class="camera-tile" onclick="openCamera('CAM_1')">
                 <div class="camera-header">
                     <h4>CAM_1 - Main Gate</h4>
-                    <span class="camera-status active">● Live</span>
+                    <span class="camera-status active">
+                        <i class="fas fa-circle"></i> Live
+                    </span>
                 </div>
                 <div class="camera-feed blurred">
                     <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_1">
@@ -123,7 +125,9 @@
             <div class="camera-tile" onclick="openCamera('CAM_2')">
                 <div class="camera-header">
                     <h4>CAM_2 - Library</h4>
-                    <span class="camera-status active">● Live</span>
+                    <span class="camera-status active">
+                        <i class="fas fa-circle"></i> Live
+                    </span>
                 </div>
                 <div class="camera-feed blurred">
                     <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_2">
@@ -141,7 +145,9 @@
             <div class="camera-tile" onclick="openCamera('CAM_3')">
                 <div class="camera-header">
                     <h4>CAM_3 - Cafeteria</h4>
-                    <span class="camera-status active">● Live</span>
+                    <span class="camera-status active">
+                        <i class="fas fa-circle"></i> Live
+                    </span>
                 </div>
                 <div class="camera-feed blurred">
                     <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_3">
@@ -159,7 +165,9 @@
             <div class="camera-tile" onclick="window.location.href='{{ url_for('demo_cam') }}'">
                 <div class="camera-header">
                     <h4>DEMO_CAM - Live</h4>
-                    <span class="camera-status demo">● Demo</span>
+                    <span class="camera-status demo">
+                        <i class="fas fa-circle"></i> Demo
+                    </span>
                 </div>
                 <div class="camera-feed blurred">
                     <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="DEMO_CAM">
@@ -175,15 +183,16 @@
             </div>
         </div>
 
-        <!-- Persons Grid -->
+        <!-- Persons Section -->
         <div class="persons-section">
-            <h2>Tracked Persons</h2>
+            <h2><i class="fas fa-users"></i> Tracked Persons</h2>
             <div class="persons-grid" id="personsGrid">
                 <!-- Person cards will be loaded here -->
             </div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         // Camera hover effects
         document.querySelectorAll('.camera-feed').forEach(feed => {
@@ -294,9 +303,5 @@
             });
         }
     </script>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-
 </body>
 </html>

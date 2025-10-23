@@ -81,6 +81,7 @@ def create_app():
     # Video feed route
     @app.route('/video_feed')
     def video_feed():
+        from flask import Response
         return Response(
             demo_cam_instance.generate_frames(),
             mimetype='multipart/x-mixed-replace; boundary=frame'
@@ -134,6 +135,16 @@ def create_app():
             "DEMO_CAM": {"status": "demo", "persons_detected": "live", "last_seen": "now"}
         }
         return jsonify(cameras)
+    
+    # API route for camera status
+    @app.route('/api/camera/status')
+    def get_camera_status():
+        """Get current camera status"""
+        if 'user_role' not in session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        status = demo_cam_instance.get_camera_status()
+        return jsonify(status)
     
     return app
 

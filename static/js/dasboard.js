@@ -4,6 +4,7 @@ class DashboardManager {
         this.currentFilters = {};
         this.personsData = [];
         this.camerasData = [];
+        this.isRealTimeUpdating = true;
         this.init();
     }
 
@@ -11,6 +12,7 @@ class DashboardManager {
         this.setupEventListeners();
         this.loadInitialData();
         this.startRealTimeUpdates();
+        this.setupCameraHoverEffects();
     }
 
     setupEventListeners() {
@@ -21,41 +23,44 @@ class DashboardManager {
         });
 
         // Filter events
-        document.getElementById('dateFrom')?.addEventListener('change', () => this.applyFilters());
-        document.getElementById('dateTo')?.addEventListener('change', () => this.applyFilters());
-        document.getElementById('cameraFilter')?.addEventListener('change', () => this.applyFilters());
-        document.getElementById('durationFilter')?.addEventListener('change', () => this.applyFilters());
-        document.getElementById('personIdFilter')?.addEventListener('input', () => this.applyFilters());
+        const filterElements = [
+            document.getElementById('dateFrom'),
+            document.getElementById('dateTo'),
+            document.getElementById('cameraFilter'),
+            document.getElementById('durationFilter'),
+            document.getElementById('personIdFilter')
+        ];
+        
+        filterElements.forEach(element => {
+            if (element) {
+                element.addEventListener('change', () => this.applyFilters());
+                element.addEventListener('input', () => this.applyFilters());
+            }
+        });
 
-        // Camera control buttons
-        document.querySelector('.blur-all-btn')?.addEventListener('click', () => this.blurAllCameras());
-        document.querySelector('.play-all-btn')?.addEventListener('click', () => this.playAllCameras());
+        // Filter button
+        document.querySelector('.filter-btn')?.addEventListener('click', () => this.applyFilters());
+    }
+
+    setupCameraHoverEffects() {
+        // Add smooth transitions to camera feeds
+        document.querySelectorAll('.camera-feed').forEach(feed => {
+            feed.style.transition = 'all 0.3s ease';
+        });
     }
 
     focusCamera(cameraElement) {
         cameraElement.classList.remove('blurred');
         cameraElement.style.transform = 'scale(1.05)';
         cameraElement.style.zIndex = '10';
+        cameraElement.style.boxShadow = '0 10px 30px rgba(230, 0, 0, 0.3)';
     }
 
     blurCamera(cameraElement) {
         cameraElement.classList.add('blurred');
         cameraElement.style.transform = 'scale(1)';
         cameraElement.style.zIndex = '1';
-    }
-
-    blurAllCameras() {
-        document.querySelectorAll('.camera-feed').forEach(feed => {
-            feed.classList.add('blurred');
-            feed.style.transform = 'scale(1)';
-        });
-    }
-
-    playAllCameras() {
-        document.querySelectorAll('.camera-feed').forEach(feed => {
-            feed.classList.remove('blurred');
-            feed.style.transform = 'scale(1)';
-        });
+        cameraElement.style.boxShadow = 'none';
     }
 
     applyFilters() {
@@ -64,7 +69,7 @@ class DashboardManager {
             dateTo: document.getElementById('dateTo')?.value,
             camera: document.getElementById('cameraFilter')?.value,
             duration: document.getElementById('durationFilter')?.value,
-            personId: document.getElementById('personIdFilter')?.value
+            personId: document.getElementById('personIdFilter')?.value?.toLowerCase()
         };
 
         this.filterPersons();
@@ -72,6 +77,12 @@ class DashboardManager {
 
     async loadInitialData() {
         try {
+            // Show loading state
+            this.showLoadingState();
+            
+            // Simulate API call delay for demo
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             // Mock data for demo
             this.personsData = [
                 {
@@ -83,7 +94,8 @@ class DashboardManager {
                     duration: 300,
                     total_cameras: 1,
                     status: 'active',
-                    confidence: 95
+                    confidence: 95,
+                    display_image: '/static/images/bg-login.jpg'
                 },
                 {
                     id: 'PERSON_002',
@@ -94,7 +106,8 @@ class DashboardManager {
                     duration: 725,
                     total_cameras: 2,
                     status: 'inactive',
-                    confidence: 87
+                    confidence: 87,
+                    display_image: '/static/images/bg-login.jpg'
                 },
                 {
                     id: 'PERSON_003',
@@ -105,20 +118,63 @@ class DashboardManager {
                     duration: 165,
                     total_cameras: 1,
                     status: 'active',
-                    confidence: 92
+                    confidence: 92,
+                    display_image: '/static/images/bg-login.jpg'
+                },
+                {
+                    id: 'PERSON_004',
+                    image: '/static/images/bg-login.jpg',
+                    camera: 'DEMO_CAM',
+                    first_seen: '2025-10-23 14:40:10',
+                    last_seen: '2025-10-23 14:42:25',
+                    duration: 135,
+                    total_cameras: 1,
+                    status: 'active',
+                    confidence: 89,
+                    display_image: '/static/images/bg-login.jpg'
                 }
+            ];
+
+            // Load camera data
+            this.camerasData = [
+                { id: 'CAM_1', status: 'active', persons: 12, last_seen: '2 min ago' },
+                { id: 'CAM_2', status: 'active', persons: 8, last_seen: '5 min ago' },
+                { id: 'CAM_3', status: 'active', persons: 15, last_seen: '1 min ago' },
+                { id: 'DEMO_CAM', status: 'demo', persons: 'live', last_seen: 'now' }
             ];
 
             this.updateStats();
             this.renderPersons();
+            this.hideLoadingState();
         } catch (error) {
-            console.error('Error loading initial data:', error);
+            console.error('Error loading initial data', error);
+            this.hideLoadingState();
+            this.showError('Failed to load dashboard data');
+        }
+    }
+
+    showLoadingState() {
+        const personsGrid = document.getElementById('personsGrid');
+        if (personsGrid) {
+            personsGrid.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading dashboard data...
+                </div>
+            `;
+        }
+    }
+
+    hideLoadingState() {
+        const loading = document.querySelector('.loading');
+        if (loading) {
+            loading.remove();
         }
     }
 
     updateStats() {
         document.getElementById('totalPersons').textContent = this.personsData.length;
-        document.getElementById('activeCameras').textContent = 4;
+        document.getElementById('activeCameras').textContent = this.camerasData.length;
         document.getElementById('totalDuration').textContent = this.getTotalDuration();
         document.getElementById('recentSearches').textContent = 23;
     }
@@ -126,7 +182,8 @@ class DashboardManager {
     getTotalDuration() {
         const totalSeconds = this.personsData.reduce((sum, person) => sum + person.duration, 0);
         const hours = Math.floor(totalSeconds / 3600);
-        return `${hours}h`;
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        return `${hours}h ${minutes}m`;
     }
 
     filterPersons() {
@@ -145,13 +202,13 @@ class DashboardManager {
             );
         }
 
-        if (this.currentFilters.camera) {
+        if (this.currentFilters.camera && this.currentFilters.camera !== '') {
             filtered = filtered.filter(person => 
                 person.camera === this.currentFilters.camera
             );
         }
 
-        if (this.currentFilters.duration) {
+        if (this.currentFilters.duration && this.currentFilters.duration !== '') {
             const durationSeconds = parseInt(this.currentFilters.duration) * 60;
             filtered = filtered.filter(person => 
                 person.duration >= durationSeconds
@@ -160,7 +217,7 @@ class DashboardManager {
 
         if (this.currentFilters.personId) {
             filtered = filtered.filter(person => 
-                person.id.toLowerCase().includes(this.currentFilters.personId.toLowerCase())
+                person.id.toLowerCase().includes(this.currentFilters.personId)
             );
         }
 
@@ -171,9 +228,20 @@ class DashboardManager {
         const grid = document.getElementById('personsGrid');
         if (!grid) return;
 
+        if (persons.length === 0) {
+            grid.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h3>No persons found</h3>
+                    <p>Try adjusting your filters</p>
+                </div>
+            `;
+            return;
+        }
+
         grid.innerHTML = persons.map(person => `
-            <div class="person-card" onclick="openPersonDetails('${person.id}')">
-                <img src="${person.image}" alt="${person.id}" class="person-image">
+            <div class="person-card fade-in" onclick="openPersonDetails('${person.id}')">
+                <img src="${person.display_image || person.image}" alt="${person.id}" class="person-image">
                 <div class="person-info">
                     <h4>${person.id}</h4>
                     <div class="person-meta">
@@ -183,7 +251,12 @@ class DashboardManager {
                     <div class="person-stats">
                         <span><i class="fas fa-clock"></i> ${this.formatDuration(person.duration)}</span>
                         <span class="status ${person.status}">${person.status}</span>
-                        <span class="cameras"><i class="fas fa-video"></i> ${person.total_cameras}</span>
+                        <span><i class="fas fa-video"></i> ${person.total_cameras}</span>
+                    </div>
+                    <div class="person-confidence">
+                        <span class="confidence">
+                            <i class="fas fa-star"></i> ${person.confidence}% confidence
+                        </span>
                     </div>
                 </div>
             </div>
@@ -203,25 +276,47 @@ class DashboardManager {
     startRealTimeUpdates() {
         // Simulate real-time updates
         setInterval(() => {
-            this.updateRealTimeStats();
+            if (this.isRealTimeUpdating) {
+                this.updateRealTimeStats();
+            }
         }, 5000);
     }
 
     updateRealTimeStats() {
         // Update person count in real-time
-        const newPersonCount = Math.floor(Math.random() * 10) + this.personsData.length;
+        const newPersonCount = Math.floor(Math.random() * 5) + this.personsData.length;
         document.getElementById('totalPersons').textContent = newPersonCount;
         
         // Update recent searches
-        const newSearches = Math.floor(Math.random() * 5) + 23;
+        const newSearches = Math.floor(Math.random() * 3) + 23;
         document.getElementById('recentSearches').textContent = newSearches;
     }
-}
 
-// Initialize dashboard when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    window.dashboardManager = new DashboardManager();
-});
+    showError(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification error';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+}
 
 // Global functions for HTML
 function openPersonDetails(personId) {
@@ -231,3 +326,28 @@ function openPersonDetails(personId) {
 function openCamera(cameraId) {
     alert(`Opening ${cameraId} in focus mode. In a real app, this would show live feed.`);
 }
+
+function applyFilters() {
+    window.dashboardManager?.applyFilters();
+}
+
+function blurAllCameras() {
+    document.querySelectorAll('.camera-feed').forEach(feed => {
+        feed.classList.add('blurred');
+        feed.style.transform = 'scale(1)';
+        feed.style.boxShadow = 'none';
+    });
+}
+
+function playAllCameras() {
+    document.querySelectorAll('.camera-feed').forEach(feed => {
+        feed.classList.remove('blurred');
+        feed.style.transform = 'scale(1)';
+        feed.style.boxShadow = 'none';
+    });
+}
+
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    window.dashboardManager = new DashboardManager();
+});
