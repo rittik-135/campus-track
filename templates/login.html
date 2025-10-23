@@ -3,35 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CampusTrack Login</title>
+  <title>CampusTrack - Secure Login</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="login-container">
-    <!-- Left: Login Box -->
+    <!-- Left: Login Box (with animations) -->
     <div class="login-box">
-      <h2>CampusTrack</h2>
-      <form method="POST">
-        <input type="email" name="email" placeholder="Email (@cuchd.in / @cumail.in)" required />
-        <input type="password" name="password" placeholder="Password" required />
-        
-        <select name="role" required>
-          <option value="">Select Role</option>
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-          <option value="security">Security Staff</option>
-          <option value="admin">Admin</option>
-        </select>
+      <div class="logo-section">
+        <i class="fas fa-shield-alt"></i>
+        <h1>CampusTrack</h1>
+        <p>Multi-Camera Security System</p>
+      </div>
+
+      <form method="POST" class="login-form">
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="Email (@cuchd.in / @cumail.in)" required />
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Password" required />
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-user-tag"></i>
+          <select name="role" required>
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="security">Security Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
 
         <div class="captcha-section">
-          <span class="captcha-text">{{ captcha_code }}</span>
-          <button type="button" onclick="location.reload()">↻ Refresh</button>
+          <div class="captcha-box">
+            <span class="captcha-text">{{ captcha_code }}</span>
+            <button type="button" class="refresh-btn" onclick="location.reload()">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+          <input type="text" name="captcha" placeholder="Enter CAPTCHA" required class="captcha-input" />
         </div>
-        <input type="text" name="captcha" placeholder="Enter CAPTCHA" required />
 
-        <button type="submit">Login</button>
+        <button type="submit" class="login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          Login
+        </button>
       </form>
+
+      <div class="security-note">
+        <i class="fas fa-shield-alt"></i>
+        Secure access for authorized personnel only
+      </div>
+    </div>
+
+    <!-- Right: Animated background elements -->
+    <div class="background-elements">
+      <div class="camera-icon"></div>
+      <div class="camera-icon"></div>
+      <div class="camera-icon"></div>
+      <div class="security-badge"></div>
     </div>
   </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
