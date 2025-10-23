@@ -14,6 +14,20 @@
                 <i class="fas fa-shield-alt"></i>
                 <h2>CampusTrack</h2>
             </div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('search') }}" class="nav-link active">
+                    <i class="fas fa-search"></i> Search
+                </a>
+                <a href="{{ url_for('upload') }}" class="nav-link">
+                    <i class="fas fa-upload"></i> Upload
+                </a>
+                <a href="{{ url_for('demo_cam') }}" class="nav-link">
+                    <i class="fas fa-video"></i> Live CAM
+                </a>
+            </div>
             <div class="nav-user">
                 <span>Welcome, {{ role|title }}</span>
                 <a href="{{ url_for('auth.logout') }}" class="logout-btn">
@@ -23,9 +37,232 @@
         </nav>
 
         <div class="dashboard-content">
-            <h1>Search System</h1>
-            <p>Find persons by face or ID</p>
+            <h1>Advanced Search System</h1>
+            
+            <div class="search-tabs">
+                <button class="tab-btn active" onclick="showTab('face-search')">Face Search</button>
+                <button class="tab-btn" onclick="showTab('id-search')">ID Search</button>
+                <button class="tab-btn" onclick="showTab('time-search')">Time Search</button>
+            </div>
+
+            <div id="face-search" class="search-tab-content active">
+                <div class="search-section">
+                    <h3>Search by Face</h3>
+                    <div class="upload-area" id="faceUploadArea">
+                        <i class="fas fa-user-circle"></i>
+                        <p>Upload a face photo to find matches</p>
+                        <input type="file" id="faceImage" accept="image/*" onchange="previewImage(this, 'facePreview')">
+                        <label for="faceImage" class="upload-btn">
+                            <i class="fas fa-upload"></i> Choose Image
+                        </label>
+                    </div>
+                    
+                    <div class="image-preview" id="facePreview" style="display: none;">
+                        <img src="" alt="Preview" id="facePreviewImg">
+                        <button onclick="clearPreview('facePreview')" class="clear-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <button class="search-btn" onclick="searchByFace()">
+                        <i class="fas fa-search"></i> Search Matches
+                    </button>
+                </div>
+            </div>
+
+            <div id="id-search" class="search-tab-content">
+                <div class="search-section">
+                    <h3>Search by Person ID</h3>
+                    <div class="input-group">
+                        <input type="text" id="personIdInput" placeholder="Enter Person ID (e.g., PERSON_001)">
+                        <button class="search-btn" onclick="searchById()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="time-search" class="search-tab-content">
+                <div class="search-section">
+                    <h3>Search by Time Range</h3>
+                    <div class="time-filters">
+                        <div class="filter-group">
+                            <label>From:</label>
+                            <input type="datetime-local" id="timeFrom">
+                        </div>
+                        <div class="filter-group">
+                            <label>To:</label>
+                            <input type="datetime-local" id="timeTo">
+                        </div>
+                        <div class="filter-group">
+                            <label>Camera:</label>
+                            <select id="timeCamera">
+                                <option value="">All Cameras</option>
+                                <option value="CAM_1">CAM_1 - Main Gate</option>
+                                <option value="CAM_2">CAM_2 - Library</option>
+                                <option value="CAM_3">CAM_3 - Cafeteria</option>
+                                <option value="DEMO_CAM">DEMO_CAM - Live</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="search-btn" onclick="searchByTime()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-results" id="searchResults">
+                <h3>Search Results</h3>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.search-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Image preview
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(previewId).style.display = 'block';
+                    document.getElementById(`${previewId}Img`).src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Clear preview
+        function clearPreview(previewId) {
+            document.getElementById(previewId).style.display = 'none';
+            document.getElementById(`${previewId}Img`).src = '';
+        }
+
+        // Search functions
+        function searchByFace() {
+            const imageFile = document.getElementById('faceImage').files[0];
+            if (!imageFile) {
+                alert('Please upload an image first');
+                return;
+            }
+            
+            // Show loading
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '<div class="loading">Searching for matches...</div>';
+            
+            // Simulate search (in real app, this would call backend)
+            setTimeout(() => {
+                loadMockResults('face');
+            }, 2000);
+        }
+
+        function searchById() {
+            const personId = document.getElementById('personIdInput').value.trim();
+            if (!personId) {
+                alert('Please enter a Person ID');
+                return;
+            }
+            
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '<div class="loading">Searching for ID...</div>';
+            
+            setTimeout(() => {
+                loadMockResults('id');
+            }, 1000);
+        }
+
+        function searchByTime() {
+            const timeFrom = document.getElementById('timeFrom').value;
+            const timeTo = document.getElementById('timeTo').value;
+            
+            if (!timeFrom || !timeTo) {
+                alert('Please select both time ranges');
+                return;
+            }
+            
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '<div class="loading">Searching by time...</div>';
+            
+            setTimeout(() => {
+                loadMockResults('time');
+            }, 1500);
+        }
+
+        // Load mock results
+        function loadMockResults(searchType) {
+            const mockResults = [
+                {
+                    id: 'PERSON_001',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_1',
+                    time: '14:30:22',
+                    confidence: 95,
+                    duration: '5 min'
+                },
+                {
+                    id: 'PERSON_007',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_2',
+                    time: '14:25:10',
+                    confidence: 87,
+                    duration: '12 min'
+                },
+                {
+                    id: 'PERSON_012',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_3',
+                    time: '14:35:45',
+                    confidence: 92,
+                    duration: '3 min'
+                }
+            ];
+
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '';
+            
+            mockResults.forEach(result => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <img src="${result.image}" alt="${result.id}" class="result-image">
+                    <div class="result-info">
+                        <h4>${result.id}</h4>
+                        <div class="result-meta">
+                            <span class="camera-tag">${result.camera}</span>
+                            <span class="time-tag">${result.time}</span>
+                            <span class="duration-tag">${result.duration}</span>
+                        </div>
+                        <div class="result-confidence">
+                            <span class="confidence">
+                                <i class="fas fa-star"></i> ${result.confidence}% match
+                            </span>
+                        </div>
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+        }
+
+        // Initialize search page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMockResults('initial');
+        });
+    </script>
 </body>
 </html>

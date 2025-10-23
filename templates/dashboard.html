@@ -36,47 +36,263 @@
             </div>
         </nav>
 
-        <div class="dashboard-content">
-            <h1>Security Dashboard</h1>
-            <p>Real-time person tracking system</p>
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label><i class="fas fa-calendar"></i> Date Range</label>
+                <input type="date" id="dateFrom" placeholder="From">
+                <input type="date" id="dateTo" placeholder="To">
+            </div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fas fa-users"></i>
-                    <h3>127</h3>
-                    <p>Total Persons Tracked</p>
+            <div class="filter-group">
+                <label><i class="fas fa-video"></i> Camera</label>
+                <select id="cameraFilter">
+                    <option value="">All Cameras</option>
+                    <option value="CAM_1">CAM_1 - Main Gate</option>
+                    <option value="CAM_2">CAM_2 - Library</option>
+                    <option value="CAM_3">CAM_3 - Cafeteria</option>
+                    <option value="DEMO_CAM">DEMO_CAM - Live</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label><i class="fas fa-clock"></i> Duration</label>
+                <select id="durationFilter">
+                    <option value="">Any Duration</option>
+                    <option value="1">Less than 1 min</option>
+                    <option value="5">1-5 minutes</option>
+                    <option value="10">5-10 minutes</option>
+                    <option value="60">More than 10 minutes</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label><i class="fas fa-user"></i> Person ID</label>
+                <input type="text" id="personIdFilter" placeholder="PERSON_001">
+            </div>
+            
+            <button class="filter-btn" onclick="applyFilters()">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3 id="totalPersons">0</h3>
+                <p>Total Persons Tracked</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-video"></i>
+                <h3 id="activeCameras">0</h3>
+                <p>Active Cameras</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3 id="totalDuration">0h</h3>
+                <p>Total Monitoring Time</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-search"></i>
+                <h3 id="recentSearches">0</h3>
+                <p>Recent Searches</p>
+            </div>
+        </div>
+
+        <!-- Camera Grid -->
+        <div class="camera-grid">
+            <div class="camera-tile" onclick="openCamera('CAM_1')">
+                <div class="camera-header">
+                    <h4>CAM_1 - Main Gate</h4>
+                    <span class="camera-status active">● Live</span>
                 </div>
-                <div class="stat-card">
-                    <i class="fas fa-video"></i>
-                    <h3>4</h3>
-                    <p>Active Cameras</p>
+                <div class="camera-feed blurred">
+                    <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_1">
+                    <div class="camera-overlay">
+                        <i class="fas fa-video"></i>
+                        <p>Click to focus</p>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <i class="fas fa-clock"></i>
-                    <h3>24h</h3>
-                    <p>Monitoring</p>
+                <div class="camera-stats">
+                    <span class="person-count">12 persons</span>
+                    <span class="last-seen">2 min ago</span>
                 </div>
             </div>
             
-            <div class="camera-grid">
-                <div class="camera-tile">
-                    <h4>CAM_1 - Main Gate</h4>
-                    <div class="camera-placeholder">Live Feed</div>
-                </div>
-                <div class="camera-tile">
+            <div class="camera-tile" onclick="openCamera('CAM_2')">
+                <div class="camera-header">
                     <h4>CAM_2 - Library</h4>
-                    <div class="camera-placeholder">Live Feed</div>
+                    <span class="camera-status active">● Live</span>
                 </div>
-                <div class="camera-tile">
+                <div class="camera-feed blurred">
+                    <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_2">
+                    <div class="camera-overlay">
+                        <i class="fas fa-video"></i>
+                        <p>Click to focus</p>
+                    </div>
+                </div>
+                <div class="camera-stats">
+                    <span class="person-count">8 persons</span>
+                    <span class="last-seen">5 min ago</span>
+                </div>
+            </div>
+            
+            <div class="camera-tile" onclick="openCamera('CAM_3')">
+                <div class="camera-header">
                     <h4>CAM_3 - Cafeteria</h4>
-                    <div class="camera-placeholder">Live Feed</div>
+                    <span class="camera-status active">● Live</span>
                 </div>
-                <div class="camera-tile">
+                <div class="camera-feed blurred">
+                    <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="CAM_3">
+                    <div class="camera-overlay">
+                        <i class="fas fa-video"></i>
+                        <p>Click to focus</p>
+                    </div>
+                </div>
+                <div class="camera-stats">
+                    <span class="person-count">15 persons</span>
+                    <span class="last-seen">1 min ago</span>
+                </div>
+            </div>
+            
+            <div class="camera-tile" onclick="window.location.href='{{ url_for('demo_cam') }}'">
+                <div class="camera-header">
                     <h4>DEMO_CAM - Live</h4>
-                    <div class="camera-placeholder">Webcam Feed</div>
+                    <span class="camera-status demo">● Demo</span>
+                </div>
+                <div class="camera-feed blurred">
+                    <img src="{{ url_for('static', filename='images/bg-login.jpg') }}" alt="DEMO_CAM">
+                    <div class="camera-overlay">
+                        <i class="fas fa-camera"></i>
+                        <p>Webcam Feed</p>
+                    </div>
+                </div>
+                <div class="camera-stats">
+                    <span class="person-count">Live</span>
+                    <span class="last-seen">Now</span>
                 </div>
             </div>
         </div>
+
+        <!-- Persons Grid -->
+        <div class="persons-section">
+            <h2>Tracked Persons</h2>
+            <div class="persons-grid" id="personsGrid">
+                <!-- Person cards will be loaded here -->
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Camera hover effects
+        document.querySelectorAll('.camera-feed').forEach(feed => {
+            feed.addEventListener('mouseenter', function() {
+                this.classList.remove('blurred');
+            });
+            feed.addEventListener('mouseleave', function() {
+                this.classList.add('blurred');
+            });
+        });
+
+        // Open camera in focus mode
+        function openCamera(cameraId) {
+            alert(`Opening ${cameraId} in focus mode. In a real app, this would show live feed.`);
+        }
+
+        // Apply filters function
+        function applyFilters() {
+            const filters = {
+                dateFrom: document.getElementById('dateFrom').value,
+                dateTo: document.getElementById('dateTo').value,
+                camera: document.getElementById('cameraFilter').value,
+                duration: document.getElementById('durationFilter').value,
+                personId: document.getElementById('personIdFilter').value
+            };
+            
+            // In a real app, this would fetch filtered data from backend
+            console.log('Applying filters:', filters);
+            loadPersons(filters);
+        }
+
+        // Load persons function
+        function loadPersons(filters = {}) {
+            // Mock data for demo
+            const mockPersons = [
+                {
+                    id: 'PERSON_001',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_1',
+                    time: '14:30:22',
+                    duration: '5 min',
+                    status: 'active'
+                },
+                {
+                    id: 'PERSON_002',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_2',
+                    time: '14:25:10',
+                    duration: '12 min',
+                    status: 'inactive'
+                },
+                {
+                    id: 'PERSON_003',
+                    image: '{{ url_for("static", filename="images/bg-login.jpg") }}',
+                    camera: 'CAM_3',
+                    time: '14:35:45',
+                    duration: '3 min',
+                    status: 'active'
+                }
+            ];
+
+            const grid = document.getElementById('personsGrid');
+            grid.innerHTML = '';
+            
+            mockPersons.forEach(person => {
+                const card = document.createElement('div');
+                card.className = 'person-card';
+                card.innerHTML = `
+                    <img src="${person.image}" alt="${person.id}" class="person-image">
+                    <div class="person-info">
+                        <h4>${person.id}</h4>
+                        <div class="person-meta">
+                            <span class="camera-tag">${person.camera}</span>
+                            <span class="time-tag">${person.time}</span>
+                        </div>
+                        <div class="person-stats">
+                            <span><i class="fas fa-clock"></i> ${person.duration}</span>
+                            <span class="status ${person.status}">${person.status}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPersons();
+            
+            // Update stats
+            document.getElementById('totalPersons').textContent = '127';
+            document.getElementById('activeCameras').textContent = '4';
+            document.getElementById('totalDuration').textContent = '24h';
+            document.getElementById('recentSearches').textContent = '23';
+        });
+
+        // Blur all cameras
+        function blurAllCameras() {
+            document.querySelectorAll('.camera-feed').forEach(feed => {
+                feed.classList.add('blurred');
+            });
+        }
+
+        // Play all cameras
+        function playAllCameras() {
+            document.querySelectorAll('.camera-feed').forEach(feed => {
+                feed.classList.remove('blurred');
+            });
+        }
+    </script>
 </body>
 </html>
