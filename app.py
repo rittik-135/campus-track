@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 import random
 import string
 from config.settings import ALLOWED_EMAIL_DOMAINS, CAPTCHA_LENGTH
@@ -14,6 +14,7 @@ def create_app():
     # Import video modules (for routes)
     from video.uploader import uploader_instance
     from video.demo_cam import demo_cam_instance
+    from tracking.database import db_instance
     
     # Home route (redirects to login)
     @app.route('/')
@@ -80,11 +81,59 @@ def create_app():
     # Video feed route
     @app.route('/video_feed')
     def video_feed():
-        from flask import Response
         return Response(
             demo_cam_instance.generate_frames(),
             mimetype='multipart/x-mixed-replace; boundary=frame'
         )
+    
+    # API routes for dashboard data
+    @app.route('/api/persons')
+    def get_persons():
+        """Get all tracked persons"""
+        if 'user_role' not in session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        persons = db_instance.get_all_persons()
+        return jsonify(persons)
+    
+    @app.route('/api/persons/search', methods=['POST'])
+    def search_persons():
+        """Search persons with filters"""
+        if 'user_role' not in session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        filters = request.get_json()
+        persons = db_instance.get_filtered_persons(filters or {})
+        return jsonify(persons)
+    
+    @app.route('/api/stats')
+    def get_stats():
+        """Get dashboard statistics"""
+        if 'user_role' not in session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        persons = db_instance.get_all_persons()
+        stats = {
+            "total_persons": len(persons),
+            "active_cameras": 4,  # This would come from your camera system
+            "total_duration": sum(p.get("total_time_sec", 0) for p in persons.values()),
+            "recent_searches": 23  # This would come from your search logs
+        }
+        return jsonify(stats)
+    
+    @app.route('/api/cameras')
+    def get_cameras():
+        """Get camera status"""
+        if 'user_role' not in session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        cameras = {
+            "CAM_1": {"status": "active", "persons_detected": 12, "last_seen": "2 min ago"},
+            "CAM_2": {"status": "active", "persons_detected": 8, "last_seen": "5 min ago"},
+            "CAM_3": {"status": "active", "persons_detected": 15, "last_seen": "1 min ago"},
+            "DEMO_CAM": {"status": "demo", "persons_detected": "live", "last_seen": "now"}
+        }
+        return jsonify(cameras)
     
     return app
 
